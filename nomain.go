@@ -8,7 +8,7 @@ import (
 func main() {
 
 	json := `{
-		"order_uid": "7",
+		"order_uid": "1",
 		"track_number": "WBILMTESTTRACK",
 		"entry": "WBILl",
 		"delivery": {
@@ -34,7 +34,45 @@ func main() {
 		},
 		"items": [
 			{
-				"chrt_id": 9934922,
+				"chrt_id": 1,
+				"track_number": "WBILMTESTTRACK",
+				"price": 453,
+				"rid": "ab4319087a764ae0btest",
+				"name": "Mascaras",
+				"sale": 30,
+				"size": "0",
+				"total_price": 317,
+				"nm_id": 2389232,
+				"brand": "Vivienne Sabo",
+				"status": 202
+			}, 
+{
+				"chrt_id": 2,
+				"track_number": "WBILMTESTTRACK",
+				"price": 1453,
+				"rid": "ab4319087a764ae0btest",
+				"name": "Sdas",
+				"sale": 50,
+				"size": "0",
+				"total_price": 317,
+				"nm_id": 2389232,
+				"brand": "Vivienne Sabo",
+				"status": 202
+			},
+{
+				"chrt_id": 3,
+				"track_number": "WBILMTESTTRACK",
+				"price": 453,
+				"rid": "ab4319087a764ae0btest",
+				"name": "Mascaras",
+				"sale": 30,
+				"size": "0",
+				"total_price": 317,
+				"nm_id": 2389232,
+				"brand": "Vivienne Sabo",
+				"status": 202
+			}, {
+				"chrt_id": 4,
 				"track_number": "WBILMTESTTRACK",
 				"price": 453,
 				"rid": "ab4319087a764ae0btest",
@@ -46,6 +84,7 @@ func main() {
 				"brand": "Vivienne Sabo",
 				"status": 202
 			}
+
 		],
 		"locale": "en",
 		"internal_signature": "sad",

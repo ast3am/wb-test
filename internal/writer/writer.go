@@ -30,8 +30,6 @@ func NewWriter(db DB, cache Cache) *writer {
 }
 
 func (w *writer) Write(text []byte) error {
-	fmt.Printf("%s\n", text)
-
 	jsonModel := models.JsonReadDTO{}
 
 	err := json.Unmarshal(text, &jsonModel)

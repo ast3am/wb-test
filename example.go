@@ -7,146 +7,132 @@ import (
 )
 
 type Order struct {
-	OrderUid          string    `json:"order_uid"`
-	TrackNumber       string    `json:"track_number"`
-	Entry             string    `json:"entry"`
-	Locale            string    `json:"locale"`
-	InternalSignature string    `json:"internal_signature"`
-	CustomerID        string    `json:"customer_id"`
-	DeliveryService   string    `json:"delivery_service"`
-	Shardkey          string    `json:"shardkey"`
-	SmID              int       `json:"sm_id"`
-	DateCreated       time.Time `json:"date_created"`
-	OofShard          string    `json:"oof_shard"`
+	OrderUid          string    `json:"order_uid" validate:"required"`
+	TrackNumber       string    `json:"track_number" validate:"required"`
+	Entry             string    `json:"entry" validate:"required"`
+	Locale            string    `json:"locale" validate:"len=2"`
+	InternalSignature string    `json:"internal_signature" validate:"required"`
+	CustomerID        string    `json:"customer_id" validate:"required"`
+	DeliveryService   string    `json:"delivery_service" validate:"required"`
+	Shardkey          string    `json:"shardkey" validate:"required"`
+	SmID              int       `json:"sm_id" validate:"required"`
+	DateCreated       time.Time `json:"date_created" validate:"required"`
+	OofShard          string    `json:"oof_shard" validate:"required"`
 }
 
 type Delivery struct {
-	Name    string `json:"name"`
-	Phone   string `json:"phone"`
-	Zip     string `json:"zip"`
-	City    string `json:"city"`
-	Address string `json:"address"`
-	Region  string `json:"region"`
-	Email   string `json:"email"`
+	Name    string `json:"name" validate:"required"`
+	Phone   string `json:"phone" validate:"e164"`
+	Zip     string `json:"zip" validate:"required"`
+	City    string `json:"city" validate:"required"`
+	Address string `json:"address" validate:"required"`
+	Region  string `json:"region" validate:"required"`
+	Email   string `json:"email" validate:"email"`
 }
 
 type Payment struct {
-	Transaction  string `json:"transaction"`
-	RequestID    string `json:"request_id"`
-	Currency     string `json:"currency"`
-	Provider     string `json:"provider"`
-	Amount       int    `json:"amount"`
-	PaymentDt    int    `json:"payment_dt"`
-	Bank         string `json:"bank"`
-	DeliveryCost int    `json:"delivery_cost"`
-	GoodsTotal   int    `json:"goods_total"`
+	Transaction  string `json:"transaction" validate:"required"`
+	RequestID    string `json:"request_id" validate:"required"`
+	Currency     string `json:"currency" validate:"len=3"`
+	Provider     string `json:"provider" validate:"required"`
+	Amount       int    `json:"amount" validate:"required"`
+	PaymentDt    int    `json:"payment_dt" validate:"required"`
+	Bank         string `json:"bank" validate:"required"`
+	DeliveryCost int    `json:"delivery_cost" validate:"required"`
+	GoodsTotal   int    `json:"goods_total" validate:"required"`
 	CustomFee    int    `json:"custom_fee"`
 }
 
 type Items struct {
-	ChrtID      int    `json:"chrt_id"`
-	TrackNumber string `json:"track_number"`
-	Price       int    `json:"price"`
-	Rid         string `json:"rid"`
-	Name        string `json:"name"`
-	Sale        int    `json:"sale"`
-	Size        string `json:"size"`
-	TotalPrice  int    `json:"total_price"`
-	NmID        int    `json:"nm_id"`
-	Brand       string `json:"brand"`
-	Status      int    `json:"status"`
-}
-
-type Orders struct {
-	Order    Order    `json:"order"`
-	Delivery Delivery `json:"delivery"`
-	Payment  Payment  `json:"payment"`
-	Items    Items    `json:"items"`
+	ChrtID      int    `json:"chrt_id" validate:"required"`
+	TrackNumber string `json:"track_number" validate:"required"`
+	Price       int    `json:"price" validate:"required"`
+	Rid         string `json:"rid" validate:"required"`
+	Name        string `json:"name" validate:"required"`
+	Sale        int    `json:"sale" validate:"required"`
+	Size        string `json:"size" validate:"required"`
+	TotalPrice  int    `json:"total_price" validate:"required"`
+	NmID        int    `json:"nm_id" validate:"required"`
+	Brand       string `json:"brand" validate:"required"`
+	Status      int    `json:"status" validate:"required"`
 }
 
 func main() {
-	jsonStr := `{
-        "order_uid": "b563feb7b2b84b6test",
-        "track_number": "WBILMTESTTRACK",
-        "entry": "WBILl",
-        "delivery": {
-            "name": "Test Testov",
-            "phone": "+9721111111",
-            "zip": "2639809",
-            "city": "Kiryat Mozkin",
-            "address": "Ploshad Mira 15",
-            "region": "Kraiot",
-            "email": "test@gmail.com"
-        },
-        "payment": {
-            "transaction": "b563feb7b2b84b6test",
-            "request_id": "",
-            "currency": "USD",
-            "provider": "wbpay",
-            "amount": 1817,
-            "payment_dt": 1637907627,
-            "bank": "alpha",
-            "delivery_cost": 1500,
-            "goods_total": 317,
-            "custom_fee": 0
-        },
-        "items": [
-            {
-                "chrt_id": 9934922,
-                "track_number": "WBILMTESTTRACK",
-                "price": 453,
-                "rid": "ab4319087a764ae0btest",
-                "name": "Mascaras",
-                "sale": 30,
-                "size": "0",
-                "total_price": 317,
-                "nm_id": 2389232,
-                "brand": "Vivienne Sabo",
-                "status": 202
-            }
-        ],
-        "locale": "en",
-        "internal_signature": "",
-        "customer_id": "test",
-        "delivery_service": "meest",
-        "shardkey": "9",
-        "sm_id": 99,
-        "date_created": "2021-11-26T06:22:19Z",
-        "oof_shard": "1"
-    }`
-
-	var ordersData struct {
-		Order    Order             `json:"order"`
-		Delivery Delivery          `json:"delivery"`
-		Payment  Payment           `json:"payment"`
-		Items    []json.RawMessage `json:"items"`
+	order := Order{
+		OrderUid:          "b563feb7b2b84b6test",
+		TrackNumber:       "WBILMTESTTRACK",
+		Entry:             "WBILl",
+		Locale:            "en",
+		InternalSignature: "",
+		CustomerID:        "test",
+		DeliveryService:   "meest",
+		Shardkey:          "9",
+		SmID:              99,
+		DateCreated:       time.Date(2021, 11, 26, 6, 22, 19, 0, time.UTC),
+		OofShard:          "1",
 	}
 
-	err := json.Unmarshal([]byte(jsonStr), &ordersData)
+	delivery := Delivery{
+		Name:    "Test Testov",
+		Phone:   "+9721111111",
+		Zip:     "2639809",
+		City:    "Kiryat Mozkin",
+		Address: "Ploshad Mira 15",
+		Region:  "Kraiot",
+		Email:   "test@gmail.com",
+	}
+
+	payment := Payment{
+		Transaction:  "b563feb7b2b84b6test",
+		RequestID:    "",
+		Currency:     "USD",
+		Provider:     "wbpay",
+		Amount:       1817,
+		PaymentDt:    1637907627,
+		Bank:         "alpha",
+		DeliveryCost: 1500,
+		GoodsTotal:   317,
+		CustomFee:    0,
+	}
+
+	items := []Items{
+		{
+			ChrtID:      9934922,
+			TrackNumber: "WBILMTESTTRACK",
+			Price:       453,
+			Rid:         "ab4319087a764ae0btest",
+			Name:        "Mascaras",
+			Sale:        30,
+			Size:        "0",
+			TotalPrice:  317,
+			NmID:        2389232,
+			Brand:       "Vivienne Sabo",
+			Status:      202,
+		},
+	}
+
+	result := map[string]interface{}{
+		"order_uid":          order.OrderUid,
+		"track_number":       order.TrackNumber,
+		"entry":              order.Entry,
+		"delivery":           delivery,
+		"payment":            payment,
+		"items":              items,
+		"locale":             order.Locale,
+		"internal_signature": order.InternalSignature,
+		"customer_id":        order.CustomerID,
+		"delivery_service":   order.DeliveryService,
+		"shardkey":           order.Shardkey,
+		"sm_id":              order.SmID,
+		"date_created":       order.DateCreated.Format(time.RFC3339),
+		"oof_shard":          order.OofShard,
+	}
+
+	jsonData, err := json.Marshal(result)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	var items []Items
-	for _, rawItem := range ordersData.Items {
-		var item Items
-		err := json.Unmarshal(rawItem, &item)
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
-		items = append(items, item)
-	}
-
-	orders := Orders{
-		Order:    ordersData.Order,
-		Delivery: ordersData.Delivery,
-		Payment:  ordersData.Payment,
-	}
-	if len(items) > 0 {
-		orders.Items = items[0]
-	}
-
-	fmt.Printf("Orders: %+v\n", orders)
+	fmt.Println(string(jsonData))
 }

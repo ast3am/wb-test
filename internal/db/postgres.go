@@ -63,13 +63,15 @@ func (db *DB) InsertOrders(ctx context.Context, orders models.Orders) error {
 	}
 
 	//items
-	items := orders.Items[0]
-	queryItems := `
+	items := orders.Items
+	for _, item := range items {
+		queryItems := `
 	INSERT INTO items (order_uid, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
-	_, err = db.dbConnect.Exec(ctx, queryItems, orders.Order.OrderUid, items.ChrtID, items.TrackNumber, items.Price, items.Rid, items.Name, items.Sale, items.Size, items.TotalPrice, items.NmID, items.Brand, items.Status)
-	if err != nil {
-		return err
+		_, err = db.dbConnect.Exec(ctx, queryItems, orders.Order.OrderUid, item.ChrtID, item.TrackNumber, item.Price, item.Rid, item.Name, item.Sale, item.Size, item.TotalPrice, item.NmID, item.Brand, item.Status)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -84,7 +86,7 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 	SELECT * FROM orders o
 	JOIN delivery d on d.order_uid = o.order_uid
 	JOIN payment p on p.order_uid = o.order_uid
-	JOIN items i on i.order_uid = o.order_uid`
+	`
 
 	rows, err := db.dbConnect.Query(ctx, query)
 	if err != nil {
@@ -92,30 +94,51 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 		return nil, err
 	}
 	defer rows.Close()
-
 	ordersArr := make([]*models.Orders, 0, count)
+
 	for rows.Next() {
 		o := models.Order{}
 		d := models.Delivery{}
 		p := models.Payment{}
-		i := models.Items{}
 		err = rows.Scan(&o.OrderUid, &o.TrackNumber, &o.Entry, &o.Locale, &o.InternalSignature, &o.CustomerID, &o.DeliveryService, &o.Shardkey, &o.SmID, &o.DateCreated, &o.OofShard,
 			&o.OrderUid, &d.Name, &d.Phone, &d.Zip, &d.City, &d.Address, &d.Region, &d.Email,
-			&o.OrderUid, &p.Transaction, &p.RequestID, &p.Currency, &p.Provider, &p.Amount, &p.PaymentDt, &p.Bank, &p.DeliveryCost, &p.GoodsTotal, &p.CustomFee,
-			&o.OrderUid, &i.ChrtID, &i.TrackNumber, &i.Price, &i.Rid, &i.Name, &i.Sale, &i.Size, &i.TotalPrice, &i.NmID, &i.Brand, &i.Status)
-		//println(o.OrderUid)
+			&o.OrderUid, &p.Transaction, &p.RequestID, &p.Currency, &p.Provider, &p.Amount, &p.PaymentDt, &p.Bank, &p.DeliveryCost, &p.GoodsTotal, &p.CustomFee)
 		if err != nil {
 			fmt.Printf("Ошибка записи: %s\n", err)
 			return nil, err
 		}
-		iArr := []models.Items{i}
+
 		orders := models.Orders{
 			o,
 			d,
 			p,
-			iArr,
+			nil,
 		}
 		ordersArr = append(ordersArr, &orders)
 	}
+
+	queryItems := `
+	SELECT * FROM items WHERE order_uid = $1
+	`
+	for _, o := range ordersArr {
+		rowsItems, err := db.dbConnect.Query(ctx, queryItems, o.Order.OrderUid)
+		if err != nil {
+			fmt.Printf("Ошибка чтения g: %s\n", err)
+			return nil, err
+		}
+		defer rowsItems.Close()
+		iArr := make([]models.Items, 0, 5)
+		for rowsItems.Next() {
+			i := models.Items{}
+			err = rowsItems.Scan(&o.Order.OrderUid, &i.ChrtID, &i.TrackNumber, &i.Price, &i.Rid, &i.Name, &i.Sale, &i.Size, &i.TotalPrice, &i.NmID, &i.Brand, &i.Status)
+			if err != nil {
+				fmt.Printf("Ошибка записи: %s\n", err)
+				return nil, err
+			}
+			iArr = append(iArr, i)
+		}
+		o.Items = iArr
+	}
+
 	return ordersArr, nil
 }
