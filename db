@@ -1,0 +1,4 @@
+INSERT INTO "WB_db".public.delivery (order_uid, name, phone, zip, city, address, region, email)
+VALUES ('b563feb7b2b84b6test','Test Testov', '+9721111111', '2639809', 'Moscow', 'Ploshad Mira 15', 'Kraiot', 'test@mail.com');
+
+

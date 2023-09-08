@@ -13,7 +13,7 @@ type Order struct {
 	CustomerID        string    `json:"customer_id"`
 	DeliveryService   string    `json:"delivery_service"`
 	Shardkey          string    `json:"shardkey"`
-	SmID              string    `json:"sm_id"`
+	SmID              int       `json:"sm_id"`
 	DateCreated       time.Time `json:"date_created"`
 	OofShard          string    `json:"oof_shard"`
 }
@@ -56,8 +56,8 @@ type Items struct {
 }
 
 type Orders struct {
-	Order    struct{}
-	Delivery struct{}
-	Payment  struct{}
-	Items    struct{}
+	Order    Order
+	Delivery Delivery `json:"delivery"`
+	Payment  Payment  `json:"payment"`
+	Items    Items    `json:"items"`
 }
