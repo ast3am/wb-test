@@ -30,6 +30,10 @@ func NewClient(ctx context.Context, username, password, host, port, database str
 	return &DB, nil
 }
 
+func (db *DB) Close(ctx context.Context) {
+	db.dbConnect.Close(ctx)
+}
+
 func (db *DB) InsertOrders(ctx context.Context, orders models.Orders) error {
 
 	// order

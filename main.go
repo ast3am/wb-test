@@ -10,6 +10,10 @@ import (
 	"github.com/example/internal/writer"
 	"github.com/gorilla/mux"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -26,9 +30,12 @@ func main() {
 	database := "WB_db"
 
 	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	testDB, err := db.NewClient(ctx, usernameDB, passwordDB, hostDB, portDB, database)
 	if err != nil {
 		fmt.Printf("Ошибка подключения: %s\n", err)
+		return
 	}
 	println("im work")
 
@@ -38,6 +45,7 @@ func main() {
 	err = write.GetCacheOnStart(ctx)
 	if err != nil {
 		fmt.Printf("Ошибка при заполнении кеша: %s\n", err)
+		return
 	}
 
 	natsCon := nats_streaming.InitNats(write)
@@ -45,12 +53,14 @@ func main() {
 	err = natsCon.Connect(clusterID, clientID, natsURL)
 	if err != nil {
 		fmt.Printf("Ошибка  коннекта nats: %s\n", err)
+		return
 	}
 	defer natsCon.Close()
 
 	err = natsCon.Subscribe(channelName)
 	if err != nil {
 		fmt.Printf("Ошибка подписки nats: %s\n", err)
+		return
 	}
 
 	router := mux.NewRouter()
@@ -58,10 +68,21 @@ func main() {
 	handler.Register(router)
 	http.Handle("/", router)
 
+	shutdownSignal := make(chan os.Signal, 1)
+	signal.Notify(shutdownSignal, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		sig := <-shutdownSignal
+		fmt.Printf("Получен сигнал завершения: %v\n", sig)
+		natsCon.Close()
+		testDB.Close(ctx)
+		time.Sleep(2 * time.Second)
+		os.Exit(0)
+	}()
+
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {
-		panic("asd")
+		return
 	}
 
-	select {}
 }
