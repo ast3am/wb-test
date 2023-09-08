@@ -8,12 +8,12 @@ import (
 func main() {
 
 	json := `{
-		"order_uid": "b563feb7b2b84b6test",
+		"order_uid": "7",
 		"track_number": "WBILMTESTTRACK",
 		"entry": "WBILl",
 		"delivery": {
 			"name": "Test Testov",
-			"phone": "+9721111111",
+			"phone": "+79211552101",
 			"zip": "2639809",
 			"city": "Kiryat Mozkin",
 			"address": "Ploshad Mira 15",
@@ -22,7 +22,7 @@ func main() {
 		},
 		"payment": {
 			"transaction": "b563feb7b2b84b6test",
-			"request_id": "",
+			"request_id": "hhjjh",
 			"currency": "USD",
 			"provider": "wbpay",
 			"amount": 1817,
@@ -48,7 +48,7 @@ func main() {
 			}
 		],
 		"locale": "en",
-		"internal_signature": "",
+		"internal_signature": "sad",
 		"customer_id": "test",
 		"delivery_service": "meest",
 		"shardkey": "9",

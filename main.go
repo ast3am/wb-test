@@ -110,7 +110,7 @@ func main() {
 		fmt.Printf("Ошибка при заполнении кеша: %s\n", err)
 	}
 
-	/*for i := 1; i < 5; i++ {
+	/*for i := 1; i < 4; i++ {
 		str := strconv.Itoa(i)
 		fmt.Printf("%+v\n\n", cacheMap.GetOrdersById(str))
 	}*/

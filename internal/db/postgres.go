@@ -63,7 +63,7 @@ func (db *DB) InsertOrders(ctx context.Context, orders models.Orders) error {
 	}
 
 	//items
-	items := orders.Items
+	items := orders.Items[0]
 	queryItems := `
 	INSERT INTO items (order_uid, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
@@ -108,11 +108,12 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 			fmt.Printf("Ошибка записи: %s\n", err)
 			return nil, err
 		}
+		iArr := []models.Items{i}
 		orders := models.Orders{
 			o,
 			d,
 			p,
-			i,
+			iArr,
 		}
 		ordersArr = append(ordersArr, &orders)
 	}
