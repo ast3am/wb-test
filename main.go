@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/example/api"
 	"github.com/example/internal/cache"
+	"github.com/example/internal/config"
 	"github.com/example/internal/db"
 	"github.com/example/internal/nats_streaming"
 	"github.com/example/internal/writer"
+	"github.com/example/pkg/logging"
 	"github.com/gorilla/mux"
 	"net/http"
 	"os"
@@ -17,50 +18,37 @@ import (
 )
 
 func main() {
-	// Настройте соединение с сервером NATS Streaming
-	channelName := "my-channel"
-	clusterID := "test-cluster"        // ID кластера NATS Streaming
-	clientID := "my-client2"           // ID клиента
-	natsURL := "nats://localhost:4222" // URL сервера NATS Streaming
-
-	usernameDB := "postgres"
-	passwordDB := "password"
-	hostDB := "localhost"
-	portDB := "5432"
-	database := "WB_db"
 
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	testDB, err := db.NewClient(ctx, usernameDB, passwordDB, hostDB, portDB, database)
-	if err != nil {
-		fmt.Printf("Ошибка подключения: %s\n", err)
-		return
-	}
-	println("im work")
 
-	cacheMap := cache.CacheInit()
+	cfg := config.GetConfig("config.yml")
+	log := logging.GetLogger(cfg.LogLevel)
+
+	testDB, err := db.NewClient(ctx, cfg, log)
+	if err != nil {
+		log.Fatal("", err)
+	}
+
+	cacheMap := cache.CacheInit(log)
 
 	write := writer.NewWriter(testDB, cacheMap)
 	err = write.GetCacheOnStart(ctx)
 	if err != nil {
-		fmt.Printf("Ошибка при заполнении кеша: %s\n", err)
-		return
+		log.Fatal("сache generation error", err)
 	}
 
 	natsCon := nats_streaming.InitNats(write)
-
-	err = natsCon.Connect(clusterID, clientID, natsURL)
+	err = natsCon.Connect(cfg)
 	if err != nil {
-		fmt.Printf("Ошибка  коннекта nats: %s\n", err)
-		return
+		log.Fatal("connect error", err)
 	}
 	defer natsCon.Close()
 
-	err = natsCon.Subscribe(channelName)
+	err = natsCon.Subscribe(cfg.NatsConfig.ChannelName)
 	if err != nil {
-		fmt.Printf("Ошибка подписки nats: %s\n", err)
-		return
+		log.Fatal("subscribe error", err)
 	}
 
 	router := mux.NewRouter()
@@ -73,16 +61,17 @@ func main() {
 
 	go func() {
 		sig := <-shutdownSignal
-		fmt.Printf("Получен сигнал завершения: %v\n", sig)
+		log.Info().Msgf("termination signal received: %v", sig)
 		natsCon.Close()
 		testDB.Close(ctx)
 		time.Sleep(2 * time.Second)
 		os.Exit(0)
 	}()
 
-	err = http.ListenAndServe(":8080", router)
-	if err != nil {
-		return
-	}
+	log.Info().Msg("service start")
 
+	err = http.ListenAndServe(":"+cfg.ListenPort, router)
+	if err != nil {
+		log.Fatal("r", err)
+	}
 }

@@ -1,6 +1,7 @@
 package nats_streaming
 
 import (
+	"github.com/example/internal/config"
 	"github.com/nats-io/stan.go"
 	"log"
 )
@@ -21,8 +22,9 @@ func InitNats(w Writer) *Nats {
 	return &Nats
 }
 
-func (n *Nats) Connect(clusterID, clientID, natsURL string) error {
-	NatsConnection, err := stan.Connect(clusterID, clientID, stan.NatsURL(natsURL))
+func (n *Nats) Connect(cfg *config.Config) error {
+	natsURL := "nats://" + cfg.NatsConfig.Host + ":" + cfg.NatsConfig.Port
+	NatsConnection, err := stan.Connect(cfg.NatsConfig.ClusterID, cfg.NatsConfig.ClientID, stan.NatsURL(natsURL))
 	if err != nil {
 		return err
 	}

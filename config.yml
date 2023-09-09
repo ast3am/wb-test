@@ -1,0 +1,16 @@
+---
+
+listen_port: "8080"
+sql_config:
+  username_db: "postgres"
+  password_db: "password"
+  host_db: "localhost"
+  port_db: "54132"
+  db_name: "WB_db"
+nats_config:
+  channel_name: "my-channel"
+  cluster_id: "test-cluster"
+  client_id: "my-client2"
+  host: "localhost"
+  port: "4222"
+log_level: "info"

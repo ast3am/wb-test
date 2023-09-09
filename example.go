@@ -1,13 +1,11 @@
-go func() {
-sig := <-shutdownSignal
-fmt.Printf("Получен сигнал завершения: %v\n", sig)
+package main
 
-fmt.Println("Закрытие соединения с NATS Streaming...")
-natsCon.Close()
+import (
+	"fmt"
+	"github.com/example/internal/config"
+)
 
-fmt.Println("Закрытие соединения с базой данных...")
-testDB.Close(ctx)
-
-fmt.Println("Завершение программы")
-os.Exit(0)
-}()
+func main() {
+	cfg := config.GetConfig("config.yml")
+	fmt.Printf("%+v\n", cfg)
+}

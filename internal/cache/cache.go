@@ -2,16 +2,19 @@ package cache
 
 import (
 	"github.com/example/internal/models"
+	"github.com/example/pkg/logging"
 )
 
 type OrdersCache struct {
 	cache map[string]models.Orders
+	log   *logging.Logger
 }
 
-func CacheInit() *OrdersCache {
+func CacheInit(log *logging.Logger) *OrdersCache {
 	cacheMap := make(map[string]models.Orders)
 	OrdersCache := OrdersCache{
 		cache: cacheMap,
+		log:   log,
 	}
 	return &OrdersCache
 }

@@ -3,35 +3,41 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/example/internal/config"
 	"github.com/example/internal/models"
+	"github.com/example/pkg/logging"
 	"github.com/jackc/pgx/v4"
 )
 
 type DB struct {
 	dbConnect *pgx.Conn
+	log       *logging.Logger
 }
 
-func NewClient(ctx context.Context, username, password, host, port, database string) (*DB, error) {
-	DB := DB{dbConnect: nil}
+func NewClient(ctx context.Context, cfg *config.Config, log *logging.Logger) (*DB, error) {
+	DB := DB{dbConnect: nil, log: log}
 	var err error
-	posgresURL := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", username, password, host, port, database)
+	posgresURL := "postgresql://" + cfg.SqlConfig.UsernameDB + ":" + cfg.SqlConfig.PasswordDB + "@" + cfg.SqlConfig.HostDB + ":" + cfg.SqlConfig.PortDB + "/" + cfg.SqlConfig.DBName
 	DB.dbConnect, err = pgx.Connect(ctx, posgresURL)
 	if err != nil {
-		println("сломался при коннекте к DB", err)
 		return nil, err
 	}
 
 	err = DB.dbConnect.Ping(ctx)
 	if err != nil {
-		println("сломался при пинге к DB", err)
 		return nil, err
 	}
-
+	log.Debug().Msgf("connection to DB is OK")
 	return &DB, nil
 }
 
 func (db *DB) Close(ctx context.Context) {
-	db.dbConnect.Close(ctx)
+	err := db.dbConnect.Close(ctx)
+	if err != nil {
+		db.log.Err(err).Msgf("closing connection to BD %s", err)
+	} else {
+		db.log.Debug().Msg("closing connection to BD is OK")
+	}
 }
 
 func (db *DB) InsertOrders(ctx context.Context, orders models.Orders) error {
@@ -77,7 +83,6 @@ func (db *DB) InsertOrders(ctx context.Context, orders models.Orders) error {
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -85,6 +90,10 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 	count := 0
 	queryCount := `SELECT count(*) FROM orders`
 	err := db.dbConnect.QueryRow(ctx, queryCount).Scan(&count)
+	if err != nil {
+		fmt.Printf("Ошибка чтения: %s\n", err)
+		return nil, err
+	}
 
 	query := `
 	SELECT * FROM orders o
@@ -113,10 +122,10 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 		}
 
 		orders := models.Orders{
-			o,
-			d,
-			p,
-			nil,
+			Order:    o,
+			Delivery: d,
+			Payment:  p,
+			Items:    nil,
 		}
 		ordersArr = append(ordersArr, &orders)
 	}
