@@ -28,31 +28,31 @@ func main() {
 
 	testDB, err := db.NewClient(ctx, cfg, log)
 	if err != nil {
-		log.Fatal("", err)
+		log.FatalMsg("", err)
 	}
 
 	cacheMap := cache.CacheInit(log)
 
-	write := writer.NewWriter(testDB, cacheMap)
+	write := writer.NewWriter(testDB, cacheMap, log)
 	err = write.GetCacheOnStart(ctx)
 	if err != nil {
-		log.Fatal("сache generation error", err)
+		log.FatalMsg("сache generation error", err)
 	}
 
-	natsCon := nats_streaming.InitNats(write)
+	natsCon := nats_streaming.InitNats(write, log)
 	err = natsCon.Connect(cfg)
 	if err != nil {
-		log.Fatal("connect error", err)
+		log.FatalMsg("connect error", err)
 	}
 	defer natsCon.Close()
 
 	err = natsCon.Subscribe(cfg.NatsConfig.ChannelName)
 	if err != nil {
-		log.Fatal("subscribe error", err)
+		log.FatalMsg("subscribe error", err)
 	}
 
 	router := mux.NewRouter()
-	handler := api.NewHandler(cacheMap)
+	handler := api.NewHandler(cacheMap, log)
 	handler.Register(router)
 	http.Handle("/", router)
 
@@ -61,17 +61,17 @@ func main() {
 
 	go func() {
 		sig := <-shutdownSignal
-		log.Info().Msgf("termination signal received: %v", sig)
+		log.InfoMsgf("termination signal received: %v", sig)
 		natsCon.Close()
 		testDB.Close(ctx)
 		time.Sleep(2 * time.Second)
 		os.Exit(0)
 	}()
 
-	log.Info().Msg("service start")
+	log.InfoMsg("service start")
 
 	err = http.ListenAndServe(":"+cfg.ListenPort, router)
 	if err != nil {
-		log.Fatal("r", err)
+		log.FatalMsg("r", err)
 	}
 }

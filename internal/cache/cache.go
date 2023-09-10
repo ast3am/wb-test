@@ -2,20 +2,24 @@ package cache
 
 import (
 	"github.com/example/internal/models"
-	"github.com/example/pkg/logging"
 )
+
+type logger interface {
+	DebugMsg(msg string)
+}
 
 type OrdersCache struct {
 	cache map[string]models.Orders
-	log   *logging.Logger
+	log   logger
 }
 
-func CacheInit(log *logging.Logger) *OrdersCache {
+func CacheInit(log logger) *OrdersCache {
 	cacheMap := make(map[string]models.Orders)
 	OrdersCache := OrdersCache{
 		cache: cacheMap,
 		log:   log,
 	}
+	log.DebugMsg("init cache is OK")
 	return &OrdersCache
 }
 

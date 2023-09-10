@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"fmt"
 	"github.com/rs/zerolog"
 	"net/http"
 	"os"
@@ -63,7 +64,23 @@ func (l *Logger) HandlerErrorLog(r *http.Request, status int, msg string, err er
 		Msg(msg)
 }
 
-func (l *Logger) Fatal(msg string, err error) {
-	l.Error().Err(err).Msg(msg)
+func (l *Logger) FatalMsg(msg string, err error) {
+	l.Fatal().Err(err).Msg(msg)
 	os.Exit(1)
+}
+
+func (l *Logger) ErrorMsg(msg string, err error) {
+	l.Err(err).Msg(msg)
+}
+
+func (l *Logger) DebugMsg(msg string) {
+	l.Debug().Msg(msg)
+}
+
+func (l *Logger) InfoMsg(msg string) {
+	l.Info().Msg(msg)
+}
+
+func (l *Logger) InfoMsgf(format string, v ...interface{}) {
+	l.Info().Msg(fmt.Sprintf(format, v...))
 }

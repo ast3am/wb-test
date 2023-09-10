@@ -3,18 +3,21 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/example/internal/config"
 	"github.com/example/internal/models"
-	"github.com/example/pkg/logging"
 	"github.com/jackc/pgx/v4"
 )
 
-type DB struct {
-	dbConnect *pgx.Conn
-	log       *logging.Logger
+type logger interface {
+	DebugMsg(msg string)
+	ErrorMsg(msg string, err error)
 }
 
-func NewClient(ctx context.Context, cfg *config.Config, log *logging.Logger) (*DB, error) {
+type DB struct {
+	dbConnect *pgx.Conn
+	log       logger
+}
+
+func NewClient(ctx context.Context, cfg *models.Config, log logger) (*DB, error) {
 	DB := DB{dbConnect: nil, log: log}
 	var err error
 	posgresURL := "postgresql://" + cfg.SqlConfig.UsernameDB + ":" + cfg.SqlConfig.PasswordDB + "@" + cfg.SqlConfig.HostDB + ":" + cfg.SqlConfig.PortDB + "/" + cfg.SqlConfig.DBName
@@ -27,16 +30,16 @@ func NewClient(ctx context.Context, cfg *config.Config, log *logging.Logger) (*D
 	if err != nil {
 		return nil, err
 	}
-	log.Debug().Msgf("connection to DB is OK")
+	log.DebugMsg("connection to DB is OK")
 	return &DB, nil
 }
 
 func (db *DB) Close(ctx context.Context) {
 	err := db.dbConnect.Close(ctx)
 	if err != nil {
-		db.log.Err(err).Msgf("closing connection to BD %s", err)
+		db.log.ErrorMsg("error closing connection to BD", err)
 	} else {
-		db.log.Debug().Msg("closing connection to BD is OK")
+		db.log.DebugMsg("closing connection to BD is OK")
 	}
 }
 
@@ -91,7 +94,6 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 	queryCount := `SELECT count(*) FROM orders`
 	err := db.dbConnect.QueryRow(ctx, queryCount).Scan(&count)
 	if err != nil {
-		fmt.Printf("Ошибка чтения: %s\n", err)
 		return nil, err
 	}
 
@@ -103,7 +105,6 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 
 	rows, err := db.dbConnect.Query(ctx, query)
 	if err != nil {
-		fmt.Printf("Ошибка чтения: %s\n", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -117,7 +118,6 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 			&o.OrderUid, &d.Name, &d.Phone, &d.Zip, &d.City, &d.Address, &d.Region, &d.Email,
 			&o.OrderUid, &p.Transaction, &p.RequestID, &p.Currency, &p.Provider, &p.Amount, &p.PaymentDt, &p.Bank, &p.DeliveryCost, &p.GoodsTotal, &p.CustomFee)
 		if err != nil {
-			fmt.Printf("Ошибка записи: %s\n", err)
 			return nil, err
 		}
 

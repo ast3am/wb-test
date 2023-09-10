@@ -5,7 +5,7 @@ sql_config:
   username_db: "postgres"
   password_db: "password"
   host_db: "localhost"
-  port_db: "54132"
+  port_db: "5432"
   db_name: "WB_db"
 nats_config:
   channel_name: "my-channel"

@@ -17,15 +17,21 @@ type Cache interface {
 	InsertOrdersToCache(orders models.Orders)
 }
 
+type logger interface {
+	InfoMsgf(format string, v ...interface{})
+}
+
 type writer struct {
 	db    DB
 	Cache Cache
+	log   logger
 }
 
-func NewWriter(db DB, cache Cache) *writer {
+func NewWriter(db DB, cache Cache, log logger) *writer {
 	return &writer{
 		db:    db,
 		Cache: cache,
+		log:   log,
 	}
 }
 
@@ -34,26 +40,27 @@ func (w *writer) Write(text []byte) error {
 
 	err := json.Unmarshal(text, &jsonModel)
 	if err != nil {
-		fmt.Println("Error unmarshal:", err)
+		err = fmt.Errorf("error unmarshal: %s", err)
 		return err
 	}
 	orders, err := transformData(jsonModel)
 	if err != nil {
-		fmt.Println("Error unmarshal items:", err)
+		err = fmt.Errorf("error unmarshal items: %s", err)
 		return err
 	}
 	err = validate(*orders)
 	if err != nil {
-		fmt.Println("Non valid date:", err)
+		err = fmt.Errorf("non valid date: %s", err)
 		return err
 	}
 	ctx := context.Background()
 	err = w.db.InsertOrders(ctx, *orders)
 	if err != nil {
-		fmt.Print("Error:", err)
+		err = fmt.Errorf("insert To Sql with UID:  %s %s", orders.Order.OrderUid, err)
 		return err
 	}
 	w.Cache.InsertOrdersToCache(*orders)
+	w.log.InfoMsgf("added new order with UID %s", orders.Order.OrderUid)
 	return nil
 
 }
@@ -77,13 +84,12 @@ func transformData(dto models.JsonReadDTO) (*models.Orders, error) {
 	o := models.Order{}
 	d := models.Delivery{}
 	p := models.Payment{}
-	i := []models.Items{}
+	i := make([]models.Items, 0, 5)
 
 	for _, itemJson := range dto.Items {
 		var item models.Items
 		err := json.Unmarshal(itemJson, &item)
 		if err != nil {
-			fmt.Println("Error unmarshal items:", err)
 			return nil, err
 		}
 		i = append(i, item)
@@ -104,8 +110,10 @@ func transformData(dto models.JsonReadDTO) (*models.Orders, error) {
 	p = dto.Payment
 
 	res := models.Orders{
-		o,
-		d, p, i,
+		Order:    o,
+		Delivery: d,
+		Payment:  p,
+		Items:    i,
 	}
 
 	return &res, nil

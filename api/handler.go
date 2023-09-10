@@ -11,13 +11,20 @@ type Cache interface {
 	GetOrdersById(Uid string) models.Orders
 }
 
-type handler struct {
-	cache Cache
+type logger interface {
+	HandlerLog(r *http.Request, status int, msg string)
+	HandlerErrorLog(r *http.Request, status int, msg string, err error)
 }
 
-func NewHandler(cache Cache) *handler {
+type handler struct {
+	cache Cache
+	log   logger
+}
+
+func NewHandler(cache Cache, log logger) *handler {
 	return &handler{
 		cache: cache,
+		log:   log,
 	}
 }
 
@@ -34,16 +41,19 @@ func (h *handler) getOrdersByID(w http.ResponseWriter, r *http.Request) {
 	if orders.Order.OrderUid == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("User not found"))
+		h.log.HandlerLog(r, http.StatusBadRequest, "order with ID "+itemID+" not found")
 		return
 	}
 	jsonData, err := json.Marshal(res)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Marshal error \n" + err.Error()))
+		h.log.HandlerErrorLog(r, http.StatusBadRequest, "", err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
+	h.log.HandlerLog(r, http.StatusOK, "return user data with UID "+itemID)
 }
 
 func transformToDTO(orders models.Orders) *models.JsonWriteDTO {
