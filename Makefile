@@ -1,4 +1,4 @@
-.PHONY: all test
+.PHONY: all run test
 
 all: test run
 
