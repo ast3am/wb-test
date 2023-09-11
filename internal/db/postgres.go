@@ -49,7 +49,7 @@ func (db *DB) InsertOrders(ctx context.Context, orders models.Orders) error {
 	// order
 	order := orders.Order
 	queryOrder := `
-	INSERT INTO orders(order_uid, track_number, entry, locale, internal_signature, customer_id, delvery_service, shardkey, sm_id, data_created, oof_shard) 
+	INSERT INTO orders(order_uid, track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 	_, err := db.dbConnect.Exec(ctx, queryOrder, order.OrderUid, order.TrackNumber, order.Entry, order.Locale, order.InternalSignature, order.CustomerID, order.DeliveryService, order.Shardkey, order.SmID, order.DateCreated, order.OofShard)
 	if err != nil {

@@ -36,10 +36,10 @@ CREATE TABLE public.orders (
     locale character varying(2) NOT NULL,
     internal_signature character varying(100) NOT NULL,
     customer_id character varying(20) NOT NULL,
-    delvery_service character varying(10) NOT NULL,
+    delivery_service character varying(10) NOT NULL,
     shardkey character varying(10) NOT NULL,
     sm_id integer NOT NULL,
-    data_created timestamp without time zone NOT NULL,
+    date_created timestamp without time zone NOT NULL,
     oof_shard character varying(10) NOT NULL
 );
 
