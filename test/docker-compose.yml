@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15.4
+    environment:
+      POSTGRES_DB: "WB_db_test"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+    volumes:
+      - ./testDB.sql:/docker-entrypoint-initdb.d/create.sql
+    ports:
+      - "5430:5432"
+  nats-streaming:
+    ports:
+        - "4220:4222"
+        - "8220:8222"
+    image: nats-streaming

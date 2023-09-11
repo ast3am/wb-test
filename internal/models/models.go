@@ -41,7 +41,7 @@ type Payment struct {
 	CustomFee    int    `json:"custom_fee"`
 }
 
-type Items struct {
+type Item struct {
 	ChrtID      int    `json:"chrt_id" validate:"required"`
 	TrackNumber string `json:"track_number" validate:"required"`
 	Price       int    `json:"price" validate:"required"`
@@ -59,5 +59,5 @@ type Orders struct {
 	Order    Order    `json:"order"`
 	Delivery Delivery `json:"delivery"`
 	Payment  Payment  `json:"payment"`
-	Items    []Items  `json:"items"`
+	Items    []Item   `json:"items"`
 }

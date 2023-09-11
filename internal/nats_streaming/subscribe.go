@@ -5,10 +5,12 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-type Writer interface {
+//go:generate mockery --name writer
+type writer interface {
 	Write(text []byte) error
 }
 
+//go:generate mockery --name logger
 type logger interface {
 	InfoMsgf(format string, v ...interface{})
 	DebugMsg(msg string)
@@ -17,11 +19,11 @@ type logger interface {
 
 type Nats struct {
 	NatsConnection stan.Conn
-	writer         Writer
+	writer         writer
 	log            logger
 }
 
-func InitNats(w Writer, log logger) *Nats {
+func InitNats(w writer, log logger) *Nats {
 	Nats := Nats{
 		writer: w,
 		log:    log,

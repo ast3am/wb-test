@@ -28,7 +28,7 @@ type JsonWriteDTO struct {
 	Entry             string    `json:"entry" validate:"required"`
 	Delivery          Delivery  `json:"delivery"`
 	Payment           Payment   `json:"payment"`
-	Items             []Items   `json:"items"`
+	Items             []Item    `json:"items"`
 	Locale            string    `json:"locale" validate:"required"`
 	InternalSignature string    `json:"internal_signature" validate:"required"`
 	CustomerID        string    `json:"customer_id" validate:"required"`

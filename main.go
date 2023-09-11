@@ -58,7 +58,6 @@ func main() {
 
 	shutdownSignal := make(chan os.Signal, 1)
 	signal.Notify(shutdownSignal, syscall.SIGINT, syscall.SIGTERM)
-
 	go func() {
 		sig := <-shutdownSignal
 		log.InfoMsgf("termination signal received: %v", sig)

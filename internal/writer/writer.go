@@ -8,26 +8,29 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type DB interface {
+//go:generate mockery --name db
+type db interface {
 	InsertOrders(ctx context.Context, orders models.Orders) error
 	GetOrders(ctx context.Context) ([]*models.Orders, error)
 }
 
-type Cache interface {
+//go:generate mockery --name cache
+type cache interface {
 	InsertOrdersToCache(orders models.Orders)
 }
 
+//go:generate mockery --name logger
 type logger interface {
 	InfoMsgf(format string, v ...interface{})
 }
 
 type writer struct {
-	db    DB
-	Cache Cache
+	db    db
+	Cache cache
 	log   logger
 }
 
-func NewWriter(db DB, cache Cache, log logger) *writer {
+func NewWriter(db db, cache cache, log logger) *writer {
 	return &writer{
 		db:    db,
 		Cache: cache,
@@ -84,10 +87,10 @@ func transformData(dto models.JsonReadDTO) (*models.Orders, error) {
 	o := models.Order{}
 	d := models.Delivery{}
 	p := models.Payment{}
-	i := make([]models.Items, 0, 5)
+	i := make([]models.Item, 0, 5)
 
 	for _, itemJson := range dto.Items {
-		var item models.Items
+		var item models.Item
 		err := json.Unmarshal(itemJson, &item)
 		if err != nil {
 			return nil, err

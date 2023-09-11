@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+//go:generate mockery --name logger
 type logger interface {
 	DebugMsg(msg string)
 	ErrorMsg(msg string, err error)
@@ -140,9 +141,9 @@ func (db *DB) GetOrders(ctx context.Context) ([]*models.Orders, error) {
 			return nil, err
 		}
 		defer rowsItems.Close()
-		iArr := make([]models.Items, 0, 5)
+		iArr := make([]models.Item, 0, 5)
 		for rowsItems.Next() {
-			i := models.Items{}
+			i := models.Item{}
 			err = rowsItems.Scan(&o.Order.OrderUid, &i.ChrtID, &i.TrackNumber, &i.Price, &i.Rid, &i.Name, &i.Sale, &i.Size, &i.TotalPrice, &i.NmID, &i.Brand, &i.Status)
 			if err != nil {
 				fmt.Printf("Ошибка записи: %s\n", err)

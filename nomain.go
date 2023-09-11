@@ -8,7 +8,7 @@ import (
 func main() {
 
 	json := `{
-		"order_uid": "11",
+		"order_uid": "5",
 		"track_number": "WBILMTESTTRACK",
 		"entry": "WBILl",
 		"delivery": {
@@ -107,10 +107,8 @@ func main() {
 	}
 	defer sc.Close()
 
-	// Сообщение, которое вы хотите отправить
 	message := []byte(json)
 
-	// Отправка сообщения в канал
 	err = sc.Publish(channelName, message)
 	if err != nil {
 		log.Fatalf("Ошибка отправки сообщения: %v", err)

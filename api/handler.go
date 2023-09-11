@@ -7,21 +7,23 @@ import (
 	"net/http"
 )
 
-type Cache interface {
+//go:generate mockery --name cache
+type cache interface {
 	GetOrdersById(Uid string) models.Orders
 }
 
+//go:generate mockery --name logger
 type logger interface {
 	HandlerLog(r *http.Request, status int, msg string)
 	HandlerErrorLog(r *http.Request, status int, msg string, err error)
 }
 
 type handler struct {
-	cache Cache
+	cache cache
 	log   logger
 }
 
-func NewHandler(cache Cache, log logger) *handler {
+func NewHandler(cache cache, log logger) *handler {
 	return &handler{
 		cache: cache,
 		log:   log,
@@ -29,31 +31,31 @@ func NewHandler(cache Cache, log logger) *handler {
 }
 
 func (h *handler) Register(router *mux.Router) {
-	router.HandleFunc("/{id}", h.getOrdersByID).Methods("GET")
+	router.HandleFunc("/{id}", h.GetOrdersByID).Methods("GET")
 }
 
-func (h *handler) getOrdersByID(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetOrdersByID(w http.ResponseWriter, r *http.Request) {
 	param := mux.Vars(r)
 	itemID := param["id"]
 
 	orders := h.cache.GetOrdersById(itemID)
 	res := transformToDTO(orders)
 	if orders.Order.OrderUid == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("User not found"))
-		h.log.HandlerLog(r, http.StatusBadRequest, "order with ID "+itemID+" not found")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Order not found"))
+		h.log.HandlerLog(r, http.StatusOK, "order with ID "+itemID+" not found")
 		return
 	}
 	jsonData, err := json.Marshal(res)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Marshal error \n" + err.Error()))
-		h.log.HandlerErrorLog(r, http.StatusBadRequest, "", err)
+		h.log.HandlerErrorLog(r, http.StatusOK, "", err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
-	h.log.HandlerLog(r, http.StatusOK, "return user data with UID "+itemID)
+	h.log.HandlerLog(r, http.StatusOK, "return order data with UID "+itemID)
 }
 
 func transformToDTO(orders models.Orders) *models.JsonWriteDTO {

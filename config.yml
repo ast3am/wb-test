@@ -13,4 +13,4 @@ nats_config:
   client_id: "my-client2"
   host: "localhost"
   port: "4222"
-log_level: "info"
+log_level: "debug"
