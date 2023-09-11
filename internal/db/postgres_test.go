@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"github.com/example/internal/db/mocks"
-	"github.com/example/internal/models"
+	"github.com/ast3am/wb-test/internal/db/mocks"
+	"github.com/ast3am/wb-test/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"

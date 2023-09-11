@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/example/internal/models"
-	"github.com/example/pkg/logging"
+	"github.com/ast3am/wb-test/internal/models"
+	"github.com/ast3am/wb-test/pkg/logging"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 

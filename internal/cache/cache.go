@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/example/internal/models"
+	"github.com/ast3am/wb-test/internal/models"
 )
 
 type logger interface {

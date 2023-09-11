@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/example/internal/models"
+	"github.com/ast3am/wb-test/internal/models"
 	"github.com/gorilla/mux"
 	"net/http"
 )

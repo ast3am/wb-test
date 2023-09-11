@@ -4,7 +4,7 @@ all: test run
 
 run:
 	docker-compose up -d
-	go run main.go
+	go run ./cmd/main.go
 
 test:
 	docker-compose -f ./test/docker-compose.yml down -v

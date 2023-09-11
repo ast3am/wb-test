@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/example/internal/models"
+	"github.com/ast3am/wb-test/internal/models"
 	"github.com/jackc/pgx/v4"
 )
 

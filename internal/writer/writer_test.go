@@ -2,9 +2,9 @@ package writer
 
 import (
 	"context"
-	"github.com/example/internal/models"
-	"github.com/example/internal/writer/mocks"
-	"github.com/example/internal/writer/test_data"
+	"github.com/ast3am/wb-test/internal/models"
+	"github.com/ast3am/wb-test/internal/writer/mocks"
+	"github.com/ast3am/wb-test/internal/writer/test_data"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"

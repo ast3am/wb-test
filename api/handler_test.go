@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/example/api/mocks"
-	"github.com/example/internal/models"
+	"github.com/ast3am/wb-test/api/mocks"
+	"github.com/ast3am/wb-test/internal/models"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

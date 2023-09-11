@@ -1,7 +1,7 @@
 package nats_streaming
 
 import (
-	"github.com/example/internal/models"
+	"github.com/ast3am/wb-test/internal/models"
 	"github.com/nats-io/stan.go"
 )
 
